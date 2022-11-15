@@ -1,0 +1,14 @@
+# Dependencies
+node_modules
+
+# yarn error logs
+yarn-error.log
+
+# Code coverage
+coverage
+**/.DS_Store
+.log/
+.vscode/
+yarn.lock
+package-lock.json
+.env
