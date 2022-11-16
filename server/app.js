@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const httpStatus = require('http-status');
+const { FootfallData } = require('./data');
 
 const app = express();
 
@@ -14,13 +15,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.options('*', cors());
 
-app.get('/', (req, res) => {
-  res.send('ok');
-});
-
-// send back a 404 error for any unknown api request
-app.use((req, res, next) => {
-  next(new Error(httpStatus.NOT_FOUND, 'Not found'));
+app.get('/footfall', (req, res) => {
+  res.send({
+    status: httpStatus.OK,
+    data: FootfallData,
+  });
 });
 
 module.exports = app;
