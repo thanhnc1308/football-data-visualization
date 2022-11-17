@@ -16,9 +16,26 @@ app.use(cors());
 app.options('*', cors());
 
 app.get('/footfall', (req, res) => {
+  console.log(req.query);
+  const maxDate = new Date(8640000000000000);
+  const minDate = new Date(-8640000000000000);
+  let startDate = minDate;
+  let endDate = maxDate;
+  if (req.query.startDate) {
+    startDate = new Date(req.query.startDate);
+  }
+  if (req.query.endDate) {
+    endDate = new Date(req.query.endDate);
+  }
+  console.log(startDate);
+  console.log(endDate);
+  const filteredFootfallData = FootfallData.filter((item) => {
+    const Time = new Date(item.Time);
+    return startDate <= Time && Time <= endDate;
+  });
   res.send({
     status: httpStatus.OK,
-    data: FootfallData,
+    data: filteredFootfallData,
   });
 });
 
