@@ -23,16 +23,22 @@ const barChartOptions = {
   },
 };
 
+const cloneDeep = (obj) => {
+  return JSON.parse(JSON.stringify(obj));
+};
+
 function App() {
   const DEFAULT_START_DATE = new Date('2020-11-03');
   const DEFAULT_END_DATE = new Date('2021-11-03');
   const [barChartData, setBarChartData] = useState({ labels: [], datasets: [] });
+  const [normalizedChartData, setNormalizedChartData] = useState({ labels: [], datasets: [] });
   const [selectedDateRange, setSelectedDateRange] = useState({ startDate: DEFAULT_START_DATE, endDate: DEFAULT_END_DATE });
   const selectionRange = {
     startDate: DEFAULT_START_DATE,
     endDate: DEFAULT_END_DATE,
     key: 'selectedDateRange',
   };
+
   const loadData = async ({ startDate = DEFAULT_START_DATE, endDate = DEFAULT_END_DATE }) => {
     const response = await axios.get(`http://localhost:3001/footfall?startDate=${startDate}&endDate=${endDate}`);
     if (response.status === 200) {
@@ -54,9 +60,25 @@ function App() {
     setSelectedDateRange(e.selectedDateRange);
   };
 
+  const normalizeChartData = () => {
+    if (!barChartData.datasets.length) {
+      return;
+    }
+    console.log(barChartData.datasets);
+    const footfallData = barChartData.datasets[0].data;
+    const maxFootfall = Math.max(...footfallData);
+    const _normalizedChartData = cloneDeep(barChartData);
+    _normalizedChartData.datasets[0].data = footfallData.map((item) => Math.round((item / maxFootfall) * 100));
+    setNormalizedChartData(_normalizedChartData);
+  };
+
   useEffect(() => {
     loadData(selectedDateRange);
   }, [selectedDateRange]);
+
+  useEffect(() => {
+    normalizeChartData();
+  }, [barChartData]);
   return (
     <div className="App">
       <div className="date-range-picker">
@@ -64,6 +86,9 @@ function App() {
       </div>
       <div className="original-chart">
         <Bar options={barChartOptions} data={barChartData} />
+      </div>
+      <div className="normalized-chart">
+        <Bar options={barChartOptions} data={normalizedChartData} />
       </div>
     </div>
   );
